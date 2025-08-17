@@ -21,12 +21,63 @@
     .btn { padding: 8px 16px; margin: 5px; cursor: pointer; }
     .btn-primary { background: #007acc; color: white; border: none; }
     .btn-danger { background: #dc3545; color: white; border: none; }
+    
+    .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f5f5f5; }
+    .login-form { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+    .demo-accounts { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+    .demo-user { padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; cursor: pointer; }
+    .demo-user:hover { background: #e9ecef; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .user-info { display: flex; align-items: center; gap: 15px; }
   </style>
 </head>
 <body>
-  <h1>Lawyer Platform</h1>
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-container">
+    <div class="login-form">
+      <h1>Lawyer Platform</h1>
+      <h2>Login</h2>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username:</label>
+          <input type="text" id="login-username" required>
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="login-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+      
+      <div class="demo-accounts">
+        <h3>Demo Accounts:</h3>
+        <div class="demo-user" onclick="quickLogin('attorney1', 'demo123')">
+          <strong>attorney1</strong> / demo123<br>
+          <small>Sarah Johnson - Attorney (Full Access)</small>
+        </div>
+        <div class="demo-user" onclick="quickLogin('support1', 'demo123')">
+          <strong>support1</strong> / demo123<br>
+          <small>Mike Chen - Support (Full Access)</small>
+        </div>
+        <div class="demo-user" onclick="quickLogin('paralegal1', 'demo123')">
+          <strong>paralegal1</strong> / demo123<br>
+          <small>Lisa Rodriguez - Paralegal (Limited Access)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="main-app" style="display: none;">
+    <div class="header">
+      <h1>Lawyer Platform</h1>
+      <div class="user-info">
+        <span id="current-user"></span>
+        <button class="btn" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
   
-  <div class="nav">
+    <div class="nav">
     <button onclick="showSection('clients')" class="active">Clients</button>
     <button onclick="showSection('cases')">Cases</button>
     <button onclick="showSection('documents')">Documents</button>
@@ -294,6 +345,8 @@
       </div>
     </div>
   </div>
+
+  </div> <!-- End main-app -->
 
   <script src="services/api.js"></script>
   <script src="app.js"></script>

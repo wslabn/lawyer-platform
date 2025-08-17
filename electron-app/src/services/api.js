@@ -140,6 +140,20 @@ class ApiService {
     return this.request(`/templates/${id}`);
   }
 
+  // Authentication
+  async login(credentials) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    });
+  }
+
+  async logout() {
+    return this.request('/auth/logout', {
+      method: 'POST'
+    });
+  }
+
   // Health check
   async checkHealth() {
     return this.request('/health');

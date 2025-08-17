@@ -735,7 +735,82 @@ function closeInvoiceModal() {
   document.getElementById('invoice-modal').style.display = 'none';
 }
 
+// Current user state
+let currentUser = null;
+
+// Authentication functions
+async function handleLogin(event) {
+  event.preventDefault();
+  
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+  
+  try {
+    const user = await api.login({ username, password });
+    currentUser = user;
+    showMainApp();
+  } catch (error) {
+    alert('Login failed: ' + error.message);
+  }
+}
+
+function quickLogin(username, password) {
+  document.getElementById('login-username').value = username;
+  document.getElementById('login-password').value = password;
+  document.querySelector('#login-screen form').dispatchEvent(new Event('submit'));
+}
+
+function showMainApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  
+  // Update user info
+  document.getElementById('current-user').textContent = 
+    `${currentUser.full_name} (${currentUser.role})`;
+  
+  // Load initial data
+  loadClients();
+  
+  // Apply role-based restrictions
+  applyRoleRestrictions();
+}
+
+function applyRoleRestrictions() {
+  // For demo purposes, show different access levels
+  if (currentUser.role === 'paralegal') {
+    // Hide some buttons for paralegal role
+    const restrictedButtons = document.querySelectorAll('.btn-danger');
+    restrictedButtons.forEach(btn => {
+      if (btn.textContent.includes('Delete')) {
+        btn.style.display = 'none';
+      }
+    });
+    
+    // Add visual indicator
+    document.querySelector('.user-info').innerHTML += 
+      '<span style="color: orange; font-size: 12px;">(Limited Access)</span>';
+  }
+}
+
+async function handleLogout() {
+  try {
+    await api.logout();
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+  
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('main-app').style.display = 'none';
+  
+  // Clear form
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-  loadClients();
+  // Show login screen first
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('main-app').style.display = 'none';
 });
