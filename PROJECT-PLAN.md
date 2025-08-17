@@ -99,12 +99,20 @@ lawyer-platform/
 
 ## Database Schema (SQLite)
 
-### Tables
+### Core Tables
 - **clients**: id, name, email, phone, address, billing_rate, created_at
-- **cases**: id, client_id, case_number, title, description, status, created_at
-- **documents**: id, client_id, case_id, filename, title, type, file_path, created_at, updated_at
-- **time_entries**: id, client_id, case_id, description, hours, rate, date, created_at
-- **invoices**: id, client_id, invoice_number, total, status, created_at, due_date
+- **cases**: id, case_number, internal_case_number, court_case_number, title, description, status, practice_area, created_at
+- **case_clients**: id, case_id, client_id, role, billing_responsibility, is_primary_contact, can_view_documents, status, created_at
+- **practice_areas**: id, name, code, created_at
+
+### Document Management
+- **documents**: id, case_id, filename, title, type, file_path, created_at, updated_at
+- **document_permissions**: id, document_id, client_id, can_view, created_at
+
+### Time & Billing
+- **time_entries**: id, case_id, billable_to_client_id, description, hours, rate, date, benefits_all_clients, created_at
+- **invoices**: id, case_id, client_id, invoice_number, total, status, created_at, due_date
+- **invoice_items**: id, invoice_id, time_entry_id, description, hours, rate, amount
 
 ## Development Phases
 
@@ -140,6 +148,18 @@ lawyer-platform/
 - [ ] Additional legal document templates
 - [ ] Search implementation
 - [ ] Multi-user testing
+
+### Phase 6: Multi-Client & Advanced Features 🔄 IN PROGRESS
+- [x] Database schema updates for multi-client support
+- [ ] Multi-client case creation UI
+- [ ] Client role management (primary, co-plaintiff, etc.)
+- [ ] Billing responsibility allocation
+- [ ] Document permission system
+- [ ] Practice areas management
+- [ ] Internal vs court case numbering
+- [ ] Enhanced time tracking with client allocation
+- [ ] Multi-client invoicing options
+- [ ] Conflict detection system
 
 ## Legal Document Templates (Future)
 - Client intake forms
@@ -250,6 +270,27 @@ lawyer-platform/
    - Test invoice status updates
    - Verify invoice details and totals
 
+## Multi-Client Case Considerations 🔄 NEW
+
+### Supported Scenarios
+- **Multiple plaintiffs in lawsuit** (Smith, Johnson & Wilson v. ABC Company)
+- **Joint adoptions** (Husband and Wife adopting together)
+- **Related but separate matters** (Trust setup 2024 → Estate administration 2026)
+- **Individual + group cases** (Client in both group lawsuit and personal divorce)
+
+### Implementation Features
+- **Flexible client roles** (primary, co-plaintiff, defendant, etc.)
+- **Billing allocation** (split evenly, by percentage, primary client only)
+- **Document permissions** (group access vs. individual confidentiality)
+- **Case numbering** (practice area based: FAM2024001, LIT2024002)
+- **Time allocation** (bill specific client or split among all)
+
+### Database Relationships
+- **Many-to-many**: Cases ↔ Clients (via case_clients junction table)
+- **Flexible billing**: Time entries can be allocated to specific clients
+- **Document security**: Per-client document access permissions
+- **Practice areas**: Configurable with custom codes for case numbering
+
 ### Known Issues & Improvements Needed
 - [ ] Search functionality not implemented
 - [ ] Multi-user conflict resolution needed
@@ -258,6 +299,9 @@ lawyer-platform/
 - [ ] Time tracking timer functionality missing
 - [ ] Data validation could be enhanced
 - [ ] Error handling improvements needed
+- [ ] Multi-client UI not yet implemented (Phase 6)
+- [ ] Practice area management UI needed
+- [ ] Conflict detection system needed
 
 ### Modification Guidelines
 
@@ -277,4 +321,5 @@ lawyer-platform/
 
 ---
 *Last Updated: December 2024*
-*Status: Core Features Complete - Testing Phase*
+*Status: Core Features Complete - Database Enhanced for Multi-Client Support*
+*Current Branch: first-changes*
