@@ -777,6 +777,9 @@ function showMainApp() {
 }
 
 function applyRoleRestrictions() {
+  // Apply menu permissions
+  applyMenuPermissions();
+  
   // For demo purposes, show different access levels
   if (currentUser.role === 'paralegal') {
     // Hide some buttons for paralegal role
@@ -792,6 +795,81 @@ function applyRoleRestrictions() {
       '<span style="color: orange; font-size: 12px;">(Limited Access)</span>';
   }
 }
+
+// Permission checking function
+function hasPermission(permission) {
+  // 1. Check individual custom permissions first
+  if (currentUser.custom_permissions && currentUser.custom_permissions[permission] !== undefined) {
+    return currentUser.custom_permissions[permission];
+  }
+  
+  // 2. Fall back to role defaults
+  const roleDefaults = {
+    'attorney': {
+      'manage_clients': true, 'view_clients': true, 'create_clients': true, 'export_data': true,
+      'manage_cases': true, 'view_cases': true, 'create_cases': true, 'search_cases': true,
+      'manage_time': true, 'view_time': true, 'create_time': true,
+      'view_invoices': true, 'create_invoices': true,
+      'manage_documents': true, 'view_documents': true, 'create_documents': true, 'manage_templates': true,
+      'view_reports': true, 'view_financial': true,
+      'admin_access': true, 'manage_users': true
+    },
+    'support': {
+      'manage_clients': true, 'view_clients': true, 'create_clients': true, 'export_data': true,
+      'manage_cases': true, 'view_cases': true, 'create_cases': true, 'search_cases': true,
+      'manage_time': true, 'view_time': true, 'create_time': true,
+      'view_invoices': true, 'create_invoices': true,
+      'manage_documents': true, 'view_documents': true, 'create_documents': true, 'manage_templates': false,
+      'view_reports': true, 'view_financial': true,
+      'admin_access': false, 'manage_users': false
+    },
+    'paralegal': {
+      'manage_clients': false, 'view_clients': true, 'create_clients': false, 'export_data': false,
+      'manage_cases': false, 'view_cases': true, 'create_cases': false, 'search_cases': true,
+      'manage_time': true, 'view_time': true, 'create_time': true,
+      'view_invoices': false, 'create_invoices': false,
+      'manage_documents': true, 'view_documents': true, 'create_documents': true, 'manage_templates': false,
+      'view_reports': false, 'view_financial': false,
+      'admin_access': false, 'manage_users': false
+    }
+  };
+  
+  return roleDefaults[currentUser.role]?.[permission] || false;
+}
+
+// Apply menu permissions based on user permissions
+function applyMenuPermissions() {
+  // Hide/show nav items based on permissions
+  document.querySelectorAll('.nav-item[data-permission]').forEach(item => {
+    const permission = item.getAttribute('data-permission');
+    if (!hasPermission(permission)) {
+      item.style.display = 'none';
+    } else {
+      item.style.display = 'block';
+    }
+  });
+  
+  // Hide/show menu items based on permissions
+  document.querySelectorAll('.menu-item[data-permission]').forEach(item => {
+    const permission = item.getAttribute('data-permission');
+    if (!hasPermission(permission)) {
+      item.style.display = 'none';
+    } else {
+      item.style.display = 'block';
+    }
+  });
+}
+
+// Placeholder functions for menu items that don't exist yet
+function exportData() { alert('Export functionality coming soon!'); }
+function searchCases() { alert('Case search functionality coming soon!'); }
+function manageTemplates() { alert('Template management coming soon!'); }
+function showTimeReports() { alert('Time reports coming soon!'); }
+function showBillingReports() { alert('Billing reports coming soon!'); }
+function showCaseReports() { alert('Case reports coming soon!'); }
+function showSettings() { alert('Settings coming soon!'); }
+function showUserManagement() { alert('User management coming soon!'); }
+function backupData() { alert('Backup functionality coming soon!'); }
 
 async function handleLogout() {
   try {

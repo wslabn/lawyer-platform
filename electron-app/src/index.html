@@ -5,9 +5,16 @@
   <title>Lawyer Platform</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-    .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-    .nav button { padding: 10px 20px; cursor: pointer; }
-    .nav button.active { background: #007acc; color: white; }
+    .main-nav { display: flex; background: #f8f9fa; border-bottom: 2px solid #007acc; margin-bottom: 20px; }
+    .nav-item { position: relative; }
+    .nav-label { display: block; padding: 15px 20px; cursor: pointer; color: #333; font-weight: 500; transition: all 0.2s; }
+    .nav-label:hover, .nav-label.active { background: #007acc; color: white; }
+    .dropdown-menu { position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); min-width: 200px; z-index: 1000; display: none; }
+    .nav-item:hover .dropdown-menu { display: block; }
+    .menu-item { padding: 12px 16px; cursor: pointer; transition: background 0.2s; }
+    .menu-item:hover { background: #f5f5f5; }
+    .menu-item[data-permission]:not([data-visible="true"]) { display: none; }
+    .menu-separator { height: 1px; background: #eee; margin: 5px 0; }
     .content { display: none; }
     .content.active { display: block; }
     .form-group { margin-bottom: 15px; }
@@ -91,13 +98,108 @@
       </div>
     </div>
   
-    <div class="nav">
-    <button onclick="showSection('dashboard')" class="active">Dashboard</button>
-    <button onclick="showSection('clients')">Clients</button>
-    <button onclick="showSection('cases')">Cases</button>
-    <button onclick="showSection('documents')">Documents</button>
-    <button onclick="showSection('time')">Time Tracking</button>
-    <button onclick="showSection('invoices')">Invoices</button>
+    <div class="main-nav">
+    <div class="nav-item" onclick="showSection('dashboard')">
+      <span class="nav-label active">Dashboard</span>
+    </div>
+    
+    <div class="nav-item" data-permission="manage_clients">
+      <span class="nav-label">File</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showSection('clients')" data-permission="view_clients">
+          <span>Clients</span>
+        </div>
+        <div class="menu-item" onclick="showClientForm()" data-permission="create_clients">
+          <span>New Client</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="exportData()" data-permission="export_data">
+          <span>Export Data</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-item" data-permission="manage_cases">
+      <span class="nav-label">Cases</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showSection('cases')" data-permission="view_cases">
+          <span>View All Cases</span>
+        </div>
+        <div class="menu-item" onclick="showCaseForm()" data-permission="create_cases">
+          <span>New Case</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="searchCases()" data-permission="search_cases">
+          <span>Search Cases</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-item" data-permission="manage_time">
+      <span class="nav-label">Time & Billing</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showSection('time')" data-permission="view_time">
+          <span>Time Entries</span>
+        </div>
+        <div class="menu-item" onclick="showTimeForm()" data-permission="create_time">
+          <span>New Time Entry</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="showSection('invoices')" data-permission="view_invoices">
+          <span>Invoices</span>
+        </div>
+        <div class="menu-item" onclick="showInvoiceGenerator()" data-permission="create_invoices">
+          <span>Generate Invoice</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-item" data-permission="manage_documents">
+      <span class="nav-label">Documents</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showSection('documents')" data-permission="view_documents">
+          <span>View All Documents</span>
+        </div>
+        <div class="menu-item" onclick="showDocumentForm()" data-permission="create_documents">
+          <span>Create Document</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="manageTemplates()" data-permission="manage_templates">
+          <span>Manage Templates</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-item" data-permission="view_reports">
+      <span class="nav-label">Reports</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showTimeReports()" data-permission="view_reports">
+          <span>Time Reports</span>
+        </div>
+        <div class="menu-item" onclick="showBillingReports()" data-permission="view_financial">
+          <span>Billing Reports</span>
+        </div>
+        <div class="menu-item" onclick="showCaseReports()" data-permission="view_reports">
+          <span>Case Reports</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-item" data-permission="admin_access">
+      <span class="nav-label">Tools</span>
+      <div class="dropdown-menu">
+        <div class="menu-item" onclick="showSettings()" data-permission="admin_access">
+          <span>Settings</span>
+        </div>
+        <div class="menu-item" onclick="showUserManagement()" data-permission="manage_users">
+          <span>User Management</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="backupData()" data-permission="admin_access">
+          <span>Backup Data</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Dashboard Section -->
