@@ -336,6 +336,7 @@ function showDocumentForm() {
   document.getElementById('document-form-title').textContent = 'Create Document';
   clearDocumentForm();
   loadClientsForDocuments();
+  loadTemplatesForDocuments();
 }
 
 function cancelDocumentForm() {
@@ -348,6 +349,7 @@ function clearDocumentForm() {
   document.getElementById('doc-client').value = '';
   document.getElementById('doc-case').value = '';
   document.getElementById('doc-title').value = '';
+  document.getElementById('doc-template').value = '';
   document.getElementById('doc-content').value = '';
   document.getElementById('pdf-btn').style.display = 'none';
 }
@@ -362,6 +364,40 @@ async function loadClientsForDocuments() {
   clients.forEach(client => {
     select.innerHTML += `<option value="${client.id}">${client.name}</option>`;
   });
+}
+
+async function loadTemplatesForDocuments() {
+  try {
+    const templates = await api.getTemplates();
+    const select = document.getElementById('doc-template');
+    select.innerHTML = '<option value="">Start from scratch</option>';
+    templates.forEach(template => {
+      select.innerHTML += `<option value="${template.id}">${template.name}</option>`;
+    });
+  } catch (error) {
+    console.error('Failed to load templates:', error);
+  }
+}
+
+async function loadTemplate() {
+  const templateId = document.getElementById('doc-template').value;
+  if (!templateId) {
+    return;
+  }
+  
+  try {
+    const template = await api.getTemplate(templateId);
+    document.getElementById('doc-content').value = template.content;
+    
+    // Auto-populate title if empty
+    const titleField = document.getElementById('doc-title');
+    if (!titleField.value) {
+      const templateName = document.getElementById('doc-template').selectedOptions[0].text;
+      titleField.value = templateName;
+    }
+  } catch (error) {
+    alert('Failed to load template: ' + error.message);
+  }
 }
 
 // Update case dropdown when client changes for documents
@@ -393,6 +429,7 @@ async function editDocument(id) {
     document.getElementById('pdf-btn').style.display = 'inline-block';
     
     await loadClientsForDocuments();
+    await loadTemplatesForDocuments();
     document.getElementById('doc-client').value = doc.client_id;
     
     // Load cases for selected client

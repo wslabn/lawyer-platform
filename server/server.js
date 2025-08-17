@@ -18,6 +18,7 @@ app.use('/api/documents', require('./routes/documents'));
 app.use('/api/time', require('./routes/time'));
 app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/templates', require('./routes/templates'));
 
 // Health check
 app.get('/api/health', (req, res) => {

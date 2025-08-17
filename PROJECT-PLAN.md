@@ -135,6 +135,7 @@ lawyer-platform/
 - [x] Markdown editor integration
 - [x] PDF generation
 - [x] Document templates
+- [x] Template integration in UI
 - [x] File organization
 
 ### Phase 4: Advanced Features ✅ COMPLETED
@@ -208,6 +209,8 @@ lawyer-platform/
 - ✅ PDF generation from markdown
 - ✅ Client/case document linking
 - ✅ Document templates (intake form, retainer agreement)
+- ✅ Template integration in document creation UI
+- ✅ Template selection and auto-loading
 - ✅ Organized file storage by client
 
 ### Time Tracking
@@ -321,7 +324,7 @@ lawyer-platform/
 - [ ] Authentication/login system not implemented
 - [ ] Search functionality not implemented
 - [ ] Multi-user conflict resolution needed
-- [ ] Document templates could be expanded
+- [ ] Additional document templates could be added
 - [ ] Invoice PDF generation not implemented
 - [ ] Time tracking timer functionality missing
 - [ ] Data validation could be enhanced

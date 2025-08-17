@@ -131,6 +131,15 @@ class ApiService {
     });
   }
 
+  // Templates
+  async getTemplates() {
+    return this.request('/templates');
+  }
+
+  async getTemplate(id) {
+    return this.request(`/templates/${id}`);
+  }
+
   // Health check
   async checkHealth() {
     return this.request('/health');

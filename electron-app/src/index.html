@@ -191,6 +191,12 @@
         <input type="text" id="doc-title" required>
       </div>
       <div class="form-group">
+        <label>Template (Optional):</label>
+        <select id="doc-template" onchange="loadTemplate()">
+          <option value="">Start from scratch</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>Content (Markdown):</label>
         <textarea id="doc-content" rows="15" style="font-family: monospace;"></textarea>
       </div>
