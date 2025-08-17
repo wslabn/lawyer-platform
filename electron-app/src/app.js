@@ -770,6 +770,7 @@ function showMainApp() {
   
   // Load initial data
   loadClients();
+  loadDashboard();
   
   // Apply role-based restrictions
   applyRoleRestrictions();
@@ -806,6 +807,181 @@ async function handleLogout() {
   // Clear form
   document.getElementById('login-username').value = '';
   document.getElementById('login-password').value = '';
+}
+
+// Dashboard functions
+async function loadDashboard() {
+  try {
+    await loadRecentCases();
+    await loadUnbilledSummary();
+    await loadRecentActivity();
+    await loadQuickStats();
+  } catch (error) {
+    console.error('Failed to load dashboard:', error);
+  }
+}
+
+async function loadRecentCases() {
+  try {
+    const cases = await api.getCases();
+    const recentCases = cases.slice(0, 5);
+    
+    const html = recentCases.length > 0 ? 
+      recentCases.map(case_ => `
+        <div class="activity-item">
+          <strong>${case_.title}</strong><br>
+          <small>Client: ${case_.client_name || 'Multiple'}</small><br>
+          <span class="activity-date">${new Date(case_.created_at).toLocaleDateString()}</span>
+        </div>
+      `).join('') : '<p>No recent cases</p>';
+    
+    document.getElementById('recent-cases').innerHTML = html;
+  } catch (error) {
+    document.getElementById('recent-cases').innerHTML = '<p>Error loading cases</p>';
+  }
+}
+
+async function loadUnbilledSummary() {
+  try {
+    const timeEntries = await api.getTimeEntries();
+    const unbilledEntries = timeEntries.filter(entry => !entry.invoiced);
+    const totalUnbilled = unbilledEntries.reduce((sum, entry) => sum + (entry.hours * entry.rate), 0);
+    const totalHours = unbilledEntries.reduce((sum, entry) => sum + entry.hours, 0);
+    
+    const html = `
+      <div class="stat-item">
+        <span>Unbilled Hours:</span>
+        <span class="stat-value">${totalHours.toFixed(2)}</span>
+      </div>
+      <div class="stat-item">
+        <span>Unbilled Amount:</span>
+        <span class="stat-value">$${totalUnbilled.toFixed(2)}</span>
+      </div>
+      <div class="stat-item">
+        <span>Entries:</span>
+        <span class="stat-value">${unbilledEntries.length}</span>
+      </div>
+    `;
+    
+    document.getElementById('unbilled-summary').innerHTML = html;
+  } catch (error) {
+    document.getElementById('unbilled-summary').innerHTML = '<p>Error loading unbilled time</p>';
+  }
+}
+
+async function loadRecentActivity() {
+  try {
+    const timeEntries = await api.getTimeEntries();
+    const recentEntries = timeEntries.slice(0, 5);
+    
+    const html = recentEntries.length > 0 ?
+      recentEntries.map(entry => `
+        <div class="activity-item">
+          <strong>${entry.description}</strong><br>
+          <small>${entry.client_name} - ${entry.hours}h @ $${entry.rate}/hr</small><br>
+          <span class="activity-date">${new Date(entry.date).toLocaleDateString()}</span>
+        </div>
+      `).join('') : '<p>No recent activity</p>';
+    
+    document.getElementById('recent-activity').innerHTML = html;
+  } catch (error) {
+    document.getElementById('recent-activity').innerHTML = '<p>Error loading activity</p>';
+  }
+}
+
+async function loadQuickStats() {
+  try {
+    const [clients_, cases, timeEntries, invoices_] = await Promise.all([
+      api.getClients(),
+      api.getCases(),
+      api.getTimeEntries(),
+      api.getInvoices()
+    ]);
+    
+    const html = `
+      <div class="stat-item">
+        <span>Total Clients:</span>
+        <span class="stat-value">${clients_.length}</span>
+      </div>
+      <div class="stat-item">
+        <span>Active Cases:</span>
+        <span class="stat-value">${cases.length}</span>
+      </div>
+      <div class="stat-item">
+        <span>Time Entries:</span>
+        <span class="stat-value">${timeEntries.length}</span>
+      </div>
+      <div class="stat-item">
+        <span>Invoices:</span>
+        <span class="stat-value">${invoices_.length}</span>
+      </div>
+    `;
+    
+    document.getElementById('quick-stats').innerHTML = html;
+  } catch (error) {
+    document.getElementById('quick-stats').innerHTML = '<p>Error loading stats</p>';
+  }
+}
+
+// Client search functionality
+let searchTimeout;
+function searchClients() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(async () => {
+    const query = document.getElementById('client-search').value.trim();
+    const resultsDiv = document.getElementById('search-results');
+    
+    if (query.length < 2) {
+      resultsDiv.style.display = 'none';
+      return;
+    }
+    
+    try {
+      const searchResults = clients.filter(client => 
+        client.name.toLowerCase().includes(query.toLowerCase()) ||
+        (client.email && client.email.toLowerCase().includes(query.toLowerCase())) ||
+        (client.phone && client.phone.includes(query))
+      );
+      
+      if (searchResults.length > 0) {
+        const html = searchResults.map(client => `
+          <div class="search-result" onclick="goToClient(${client.id})">
+            <strong>${client.name}</strong><br>
+            <small>${client.email || ''} ${client.phone || ''}</small>
+          </div>
+        `).join('');
+        
+        resultsDiv.innerHTML = html;
+        resultsDiv.style.display = 'block';
+      } else {
+        resultsDiv.innerHTML = '<div class="search-result">No clients found</div>';
+        resultsDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+    }
+  }, 300);
+}
+
+function goToClient(clientId) {
+  // Hide search results
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('client-search').value = '';
+  
+  // Switch to clients tab
+  showSection('clients');
+  
+  // Highlight the client row (optional enhancement)
+  setTimeout(() => {
+    const clientRow = document.querySelector(`tr[data-client-id="${clientId}"]`);
+    if (clientRow) {
+      clientRow.style.backgroundColor = '#fff3cd';
+      clientRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        clientRow.style.backgroundColor = '';
+      }, 3000);
+    }
+  }, 100);
 }
 
 // Initialize app
