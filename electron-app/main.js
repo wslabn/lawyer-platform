@@ -12,6 +12,9 @@ function createWindow() {
       contextIsolation: false
     }
   });
+  
+  // Remove the menu bar for cleaner UI
+  mainWindow.setMenuBarVisibility(false);
 
   mainWindow.loadFile('src/index.html');
   
