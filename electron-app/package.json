@@ -1,0 +1,16 @@
+{
+  "name": "lawyer-platform-client",
+  "version": "1.0.0",
+  "description": "Electron client for lawyer platform",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

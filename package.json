@@ -1,0 +1,14 @@
+{
+  "name": "lawyer-platform",
+  "version": "1.0.0",
+  "description": "Document and client management platform for lawyers",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "electron": "cd electron-app && npm start"
+  },
+  "keywords": ["lawyer", "document-management", "client-management", "electron"],
+  "author": "",
+  "license": "MIT"
+}
