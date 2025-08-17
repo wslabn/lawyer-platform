@@ -120,6 +120,17 @@ const createTables = () => {
         code TEXT NOT NULL UNIQUE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
+      `CREATE TABLE IF NOT EXISTS invoice_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id INTEGER NOT NULL,
+        time_entry_id INTEGER,
+        description TEXT NOT NULL,
+        hours REAL,
+        rate REAL,
+        amount REAL NOT NULL,
+        FOREIGN KEY (invoice_id) REFERENCES invoices (id),
+        FOREIGN KEY (time_entry_id) REFERENCES time_entries (id)
+      )`,
       `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,

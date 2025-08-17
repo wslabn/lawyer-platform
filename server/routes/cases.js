@@ -6,9 +6,14 @@ const router = express.Router();
 router.get('/', (req, res) => {
   const db = getDb();
   const sql = `
-    SELECT c.*, cl.name as client_name 
+    SELECT c.*, 
+           GROUP_CONCAT(cl.name, ', ') as client_name,
+           COUNT(cc.client_id) as client_count
     FROM cases c 
-    JOIN clients cl ON c.client_id = cl.id 
+    LEFT JOIN case_clients cc ON c.id = cc.case_id AND cc.status = 'active'
+    LEFT JOIN clients cl ON cc.client_id = cl.id AND cl.is_active = 1
+    WHERE c.is_active = 1
+    GROUP BY c.id
     ORDER BY c.created_at DESC
   `;
   db.all(sql, (err, rows) => {
@@ -23,7 +28,14 @@ router.get('/', (req, res) => {
 // GET cases by client
 router.get('/client/:clientId', (req, res) => {
   const db = getDb();
-  db.all('SELECT * FROM cases WHERE client_id = ? ORDER BY created_at DESC', [req.params.clientId], (err, rows) => {
+  const sql = `
+    SELECT c.* 
+    FROM cases c 
+    JOIN case_clients cc ON c.id = cc.case_id 
+    WHERE cc.client_id = ? AND c.is_active = 1 AND cc.status = 'active'
+    ORDER BY c.created_at DESC
+  `;
+  db.all(sql, [req.params.clientId], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -34,18 +46,33 @@ router.get('/client/:clientId', (req, res) => {
 
 // POST new case
 router.post('/', (req, res) => {
-  const { client_id, case_number, title, description, status } = req.body;
+  const { client_id, case_number, title, description, status, practice_area } = req.body;
   const db = getDb();
   
+  // Create case first
   db.run(
-    'INSERT INTO cases (client_id, case_number, title, description, status) VALUES (?, ?, ?, ?, ?)',
-    [client_id, case_number, title, description, status || 'active'],
+    'INSERT INTO cases (case_number, internal_case_number, title, description, status, practice_area) VALUES (?, ?, ?, ?, ?, ?)',
+    [case_number, case_number, title, description, status || 'active', practice_area],
     function(err) {
       if (err) {
         res.status(500).json({ error: err.message });
         return;
       }
-      res.json({ id: this.lastID, client_id, case_number, title, description, status });
+      
+      const caseId = this.lastID;
+      
+      // Link case to client
+      db.run(
+        'INSERT INTO case_clients (case_id, client_id, role, is_primary_contact) VALUES (?, ?, ?, ?)',
+        [caseId, client_id, 'client', 1],
+        function(err) {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          res.json({ id: caseId, client_id, case_number, title, description, status, practice_area });
+        }
+      );
     }
   );
 });
