@@ -110,9 +110,12 @@ lawyer-platform/
 - **document_permissions**: id, document_id, client_id, can_view, created_at
 
 ### Time & Billing
-- **time_entries**: id, case_id, billable_to_client_id, description, hours, rate, date, benefits_all_clients, created_at
-- **invoices**: id, case_id, client_id, invoice_number, total, status, created_at, due_date
+- **time_entries**: id, case_id, billable_to_client_id, performed_by_user_id, description, hours, rate, date, benefits_all_clients, created_at
+- **invoices**: id, case_id, client_id, invoice_number, total, status, created_by_user_id, created_at, due_date
 - **invoice_items**: id, invoice_id, time_entry_id, description, hours, rate, amount
+
+### User Management & Security
+- **users**: id, username, password_hash, full_name, email, role, custom_permissions, supervisor_id, is_active, created_at
 
 ## Development Phases
 
@@ -151,6 +154,10 @@ lawyer-platform/
 
 ### Phase 6: Multi-Client & Advanced Features 🔄 IN PROGRESS
 - [x] Database schema updates for multi-client support
+- [x] User management system with flexible permissions
+- [x] Archiving system (no deletions)
+- [x] User tracking across all operations
+- [ ] Authentication and login system
 - [ ] Multi-client case creation UI
 - [ ] Client role management (primary, co-plaintiff, etc.)
 - [ ] Billing responsibility allocation
@@ -216,6 +223,16 @@ lawyer-platform/
 - ✅ Detailed invoice views
 - ✅ Automatic invoice numbering
 - ✅ Due date management
+
+### User Management & Security ✅ NEW
+- ✅ Flexible role-based permission system
+- ✅ Custom permission overrides per user
+- ✅ Multiple user roles (attorney, support, partner, associate, paralegal)
+- ✅ Password security with bcrypt hashing
+- ✅ User hierarchy with supervisor relationships
+- ✅ Complete user CRUD operations
+- ✅ Archive system (no data deletion)
+- ✅ User activity tracking across all operations
 
 ## Testing Instructions
 
@@ -290,8 +307,18 @@ lawyer-platform/
 - **Flexible billing**: Time entries can be allocated to specific clients
 - **Document security**: Per-client document access permissions
 - **Practice areas**: Configurable with custom codes for case numbering
+- **User hierarchy**: Supervisor relationships for firm structure
+- **Activity tracking**: All operations linked to performing user
+
+### User Management & Permissions
+- **Role-based defaults**: Each role gets standard permissions
+- **Custom overrides**: Individual users can have modified permissions
+- **Archiving policy**: No data deletion - everything gets archived
+- **Flexible roles**: From solo practice (attorney + support) to complex firms
+- **Permission granularity**: Control access to specific functions per user
 
 ### Known Issues & Improvements Needed
+- [ ] Authentication/login system not implemented
 - [ ] Search functionality not implemented
 - [ ] Multi-user conflict resolution needed
 - [ ] Document templates could be expanded
@@ -302,6 +329,8 @@ lawyer-platform/
 - [ ] Multi-client UI not yet implemented (Phase 6)
 - [ ] Practice area management UI needed
 - [ ] Conflict detection system needed
+- [ ] User management UI not implemented
+- [ ] Session management and authentication needed
 
 ### Modification Guidelines
 
