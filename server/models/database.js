@@ -27,6 +27,7 @@ const createTables = () => {
         phone TEXT,
         address TEXT,
         billing_rate REAL DEFAULT 0,
+        is_active BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
       `CREATE TABLE IF NOT EXISTS cases (
@@ -38,7 +39,12 @@ const createTables = () => {
         description TEXT,
         status TEXT DEFAULT 'active',
         practice_area TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        assigned_attorney_id INTEGER,
+        created_by_user_id INTEGER,
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assigned_attorney_id) REFERENCES users (id),
+        FOREIGN KEY (created_by_user_id) REFERENCES users (id)
       )`,
       `CREATE TABLE IF NOT EXISTS case_clients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,9 +67,13 @@ const createTables = () => {
         title TEXT NOT NULL,
         type TEXT DEFAULT 'markdown',
         file_path TEXT NOT NULL,
+        created_by_user_id INTEGER,
+        updated_by_user_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (case_id) REFERENCES cases (id)
+        FOREIGN KEY (case_id) REFERENCES cases (id),
+        FOREIGN KEY (created_by_user_id) REFERENCES users (id),
+        FOREIGN KEY (updated_by_user_id) REFERENCES users (id)
       )`,
       `CREATE TABLE IF NOT EXISTS document_permissions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,6 +89,7 @@ const createTables = () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         case_id INTEGER NOT NULL,
         billable_to_client_id INTEGER,
+        performed_by_user_id INTEGER NOT NULL,
         description TEXT NOT NULL,
         hours REAL NOT NULL,
         rate REAL NOT NULL,
@@ -86,7 +97,8 @@ const createTables = () => {
         benefits_all_clients BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (case_id) REFERENCES cases (id),
-        FOREIGN KEY (billable_to_client_id) REFERENCES clients (id)
+        FOREIGN KEY (billable_to_client_id) REFERENCES clients (id),
+        FOREIGN KEY (performed_by_user_id) REFERENCES users (id)
       )`,
       `CREATE TABLE IF NOT EXISTS invoices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,16 +107,31 @@ const createTables = () => {
         invoice_number TEXT UNIQUE NOT NULL,
         total REAL NOT NULL,
         status TEXT DEFAULT 'draft',
+        created_by_user_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         due_date DATE,
         FOREIGN KEY (case_id) REFERENCES cases (id),
-        FOREIGN KEY (client_id) REFERENCES clients (id)
+        FOREIGN KEY (client_id) REFERENCES clients (id),
+        FOREIGN KEY (created_by_user_id) REFERENCES users (id)
       )`,
       `CREATE TABLE IF NOT EXISTS practice_areas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         code TEXT NOT NULL UNIQUE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+      `CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        full_name TEXT NOT NULL,
+        email TEXT,
+        role TEXT NOT NULL DEFAULT 'support',
+        custom_permissions TEXT,
+        supervisor_id INTEGER,
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (supervisor_id) REFERENCES users (id)
       )`
     ];
 
